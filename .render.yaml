@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: smart-ai-tailor
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GEMINI_API_KEY
+        value: AIzaSyAtZdcm9nN--eMNlWoiF0wRuTwE70mBkV4
+      - key: MONGO_URI
+        value: mongodb+srv://seeramharsha93:1234@cluster1.czdxp.mongodb.net/
