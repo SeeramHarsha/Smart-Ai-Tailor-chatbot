@@ -2,3 +2,4 @@ Flask==2.3.3
 nltk==3.8.1
 pymongo==4.6.1
 google-generativeai==0.4.1
+gunicorn==21.2.0
