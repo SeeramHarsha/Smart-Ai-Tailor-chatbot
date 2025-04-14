@@ -27,7 +27,7 @@ custom_words = {
 sia.lexicon.update(custom_words)
 
 # MongoDB setup
-mongo_client = MongoClient(os.getenv('mongodb+srv://seeramharsha93:1234@cluster1.czdxp.mongodb.net/'))
+mongo_client = MongoClient(os.getenv('MONGO_URI'))
 db = mongo_client['ecommerce']
 
 # Gemini setup
