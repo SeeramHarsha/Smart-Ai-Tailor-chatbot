@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailor AI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+            margin-right: 0;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            margin-right: 20%;
+            margin-left: 0;
+        }
+        .message-info {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .sentiment {
+            font-style: italic;
+            color: #666;
+        }
+        .order-status {
+            color: #2c5f2d;
+            font-weight: 500;
+        }
+        .negative {
+            color: #d32f2f;
+        }
+        .positive {
+            color: #388e3c;
+        }
+        .neutral {
+            color: #0288d1;
+        }
+        #message-form {
+            display: flex;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tailor AI Assistant</h1>
+    <div class="chat-container" id="chat-container">
+        <div class="message bot-message">
+            Hello! I'm the Tailor AI Assistant. How can I help you today?
+        </div>
+    </div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message here..." required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        document.getElementById('message-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user-message');
+            messageInput.value = '';
+            
+            try {
+                // Send message to server
+                const response = await fetch('/api/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                // Create response elements
+                const sentimentClass = data.sentiment;
+                const sentimentInfo = `Sentiment: ${data.sentiment}`;
+                const orderStatusInfo = data.order_status ? `Order Status: ${data.order_status}` : null;
+                
+                // Add bot response to chat
+                addMessage(data.response, 'bot-message', sentimentInfo, sentimentClass, orderStatusInfo);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, there was an error processing your request.', 'bot-message');
+            }
+        });
+        
+        function addMessage(text, className, sentimentInfo = null, sentimentClass = null, orderStatusInfo = null) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.textContent = text;
+            
+            // Add metadata if exists
+            if (sentimentInfo || orderStatusInfo) {
+                const infoContainer = document.createElement('div');
+                infoContainer.className = 'message-info';
+                
+                if (sentimentInfo) {
+                    const sentimentDiv = document.createElement('div');
+                    sentimentDiv.className = `sentiment ${sentimentClass}`;
+                    sentimentDiv.textContent = sentimentInfo;
+                    infoContainer.appendChild(sentimentDiv);
+                }
+                
+                if (orderStatusInfo) {
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'order-status';
+                    statusDiv.textContent = orderStatusInfo;
+                    infoContainer.appendChild(statusDiv);
+                }
+                
+                messageDiv.appendChild(infoContainer);
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
